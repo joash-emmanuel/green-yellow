@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: green-app
+  namespace: dev
+  labels:
+    app: green-app
+spec:
+  selector:
+    matchLabels:
+      app: green-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: green-app
+    spec:
+      containers:
+      - name: green
+        image: 331879450537.dkr.ecr.us-west-2.amazonaws.com/green-1:latest
+        ports:
+            - containerPort: 80
+        resources:
+          limits:
+            memory: "1000Mi"
+            cpu: "250m"
+          requests:
+            memory: "1000Mi"
+            cpu: "250m"
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: dev
+  name: green-1-service
+  labels:
+    app: green-app
+  annotations:
+    alb.ingress.kubernetes.io/healthcheck-path: /green/index.html
+spec:
+  type: NodePort
+  selector:
+    app: green-app
+  ports:
+    - port: 80
+      targetPort: 80
